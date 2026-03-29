@@ -10,13 +10,17 @@ with open('data-2.json','r', encoding='utf-8') as file_2:
 with open('data-result.json','r', encoding='utf-8') as file_3:
     jsonExceptedResult = json.load(file_3)
 
+def iso_to_millis(iso_str):
+    dt = datetime.strptime(iso_str, "%Y-%m-%dT%H:%M:%S.%fZ")
+    return int(dt.timestamp() * 1000)
+
 def convertFromFormat1(jsonObject):
     locationParts = jsonObject['location'].split('/')
 
     result = {
         'deviceID': jsonObject['deviceID'],
         'deviceType': jsonObject['deviceType'],
-        'timestamp': jsonObject['timestamp'],
+        'timestamp': iso_to_millis(jsonObject['timestamp']),
         'location':{
             'country': locationParts[0],
             'city': locationParts[1],
@@ -31,10 +35,6 @@ def convertFromFormat1(jsonObject):
     }
 
     return result
-
-def iso_to_millis(iso_str):
-    dt = datetime.strptime(iso_str, "%Y-%m-%dT%H:%M:%S.%fZ")
-    return int(dt.timestamp() * 1000)
 
 def convertFromFormat2(jsonObject):
 
@@ -56,4 +56,14 @@ def convertFromFormat2(jsonObject):
     }
 
     return result
+
+def main(jsonObject):
+    if jsonObject.get('device') is None:
+        return convertFromFormat1(jsonObject)
+    else:
+        return convertFromFormat2(jsonObject)
+
+if __name__ == "__main__":
+    print(main(jsonData1))
+    print(main(jsonData2))
 
